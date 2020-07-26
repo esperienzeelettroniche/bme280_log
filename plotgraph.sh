@@ -36,6 +36,15 @@ if [[ $PLOT_END == "" ]]; then
 	PLOT_END=$LOG_END
 fi
 
+echo "Smoot mode < c (cspline) or b (bezier) >"
+read SMOOTH_MODE
+if [[ $SMOOTH_MODE == "c" ]];then
+	sed -i 's/bezier/cspline/g' plotgraph.plt
+fi
+if [[ $SMOOTH_MODE == "b" ]];then
+	sed -i 's/cspline/bezier/g' plotgraph.plt
+fi
+
 PLOT_START_D=$(echo $PLOT_START | cut -d '/' -f 1)
 PLOT_START_M=$(echo $PLOT_START | cut -d '/' -f 2)
 PLOT_START_Y=$(echo $PLOT_START | cut -d '/' -f 3 | cut -d ' ' -f 1)
