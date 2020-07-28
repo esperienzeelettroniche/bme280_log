@@ -1,6 +1,6 @@
 set timefmt "%s"
 set xdata time
-set xrange [1595760720:1595841420]
+set xrange [1595760720:1595918880]
 set format x "%d/%m\n%H:%M"
 set grid xtics lt -1 lw 1
 #set grid mxtics
