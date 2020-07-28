@@ -1,6 +1,5 @@
 bme280_log
-plotdata.dat
+*.dat
 *.svg
 *.png
-*html
 *.dat

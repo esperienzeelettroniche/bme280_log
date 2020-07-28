@@ -22,38 +22,31 @@ else
 	fi
 fi
 
-echo "Plot start ($LOG_START):"
+echo "Plot start [$LOG_START]?"
 read PLOT_START
 if [[ $PLOT_START == "" ]]; then
 	PLOT_START=$LOG_START
 fi
 
-echo "Plot end ($LOG_END):"
+echo "Plot end [$LOG_END]?"
 read PLOT_END
 if [[ $PLOT_END == "" ]]; then
 	PLOT_END=$LOG_END
 fi
 
-echo "Smoot mode < c (cspline) or b (bezier) >"
+echo "Smoot mode [C(spline) or B(ezier)]?"
 read SMOOTH_MODE
-if [[ $SMOOTH_MODE == "c" ]];then
+if [[ $SMOOTH_MODE == "C" || $SMOOTH_MODE == "c" ]];then
 	sed -i 's/bezier/cspline/g' plotgraph.plt
 fi
-if [[ $SMOOTH_MODE == "b" ]];then
+if [[ $SMOOTH_MODE == "B" || $SMOOTH_MODE == 'b' ]];then
 	sed -i 's/cspline/bezier/g' plotgraph.plt
 fi
 
-PLOT_START_D=$(echo $PLOT_START | cut -d '/' -f 1)
-PLOT_START_M=$(echo $PLOT_START | cut -d '/' -f 2)
-PLOT_START_Y=$(echo $PLOT_START | cut -d '/' -f 3 | cut -d ' ' -f 1)
-PLOT_START_T=$(echo $PLOT_START | cut -d ' ' -f 2)
-PLOT_END_D=$(echo $PLOT_END| cut -d '/' -f 1)
-PLOT_END_M=$(echo $PLOT_END| cut -d '/' -f 2)
-PLOT_END_Y=$(echo $PLOT_END| cut -d '/' -f 3 | cut -d ' ' -f 1)
-PLOT_END_T=$(echo $PLOT_END| cut -d ' ' -f 2)
+echo "Plotting data..."
 
-PLOT_START=$(date +%s -d "$(echo $PLOT_START_Y/$PLOT_START_M/$PLOT_START_D $PLOT_START_T)")
-PLOT_END=$(date +%s -d "$(echo $PLOT_END_Y/$PLOT_END_M/$PLOT_END_D $PLOT_END_T)")
+PLOT_START=$(date +%s -d "$(echo $PLOT_START | cut -d '/' -f 3 | cut -d ' ' -f 1)/$(echo $PLOT_START | cut -d '/' -f 2)/$(echo $PLOT_START | cut -d '/' -f 1) $(echo $PLOT_START | cut -d ' ' -f 2)")
+PLOT_END=$(date +%s -d "$(echo $PLOT_END | cut -d '/' -f 3 | cut -d ' ' -f 1)/$(echo $PLOT_END | cut -d '/' -f 2)/$(echo $PLOT_END | cut -d '/' -f 1) $(echo $PLOT_END | cut -d ' ' -f 2)")
 
 sed -i "s/xrange \[.*\]/xrange \[$PLOT_START:$PLOT_END\]/" plotgraph.plt
 
