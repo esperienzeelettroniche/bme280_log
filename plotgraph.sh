@@ -1,6 +1,8 @@
 #!/bin/bash
 
 DATAFILE=plotdata.dat
+PLOTFILE=plotgraph.plt
+
 FORMAT="%d/%m/%Y %H:%M"
 
 if [ $# -eq 0 ]; then
@@ -34,20 +36,45 @@ if [[ $PLOT_END == "" ]]; then
 	PLOT_END=$LOG_END
 fi
 
+PLOT_START=$(date +%s -d "$(echo $PLOT_START | cut -d '/' -f 3 | cut -d ' ' -f 1)/$(echo $PLOT_START | cut -d '/' -f 2)/$(echo $PLOT_START | cut -d '/' -f 1) $(echo $PLOT_START | cut -d ' ' -f 2)")
+PLOT_END=$(date +%s -d "$(echo $PLOT_END | cut -d '/' -f 3 | cut -d ' ' -f 1)/$(echo $PLOT_END | cut -d '/' -f 2)/$(echo $PLOT_END | cut -d '/' -f 1) $(echo $PLOT_END | cut -d ' ' -f 2)")
+sed -i "s/xrange \[.*\]/xrange \[$PLOT_START:$PLOT_END\]/" $PLOTFILE
+
 echo "Smoot mode [C(spline) or B(ezier)]?"
 read SMOOTH_MODE
 if [[ $SMOOTH_MODE == "C" || $SMOOTH_MODE == "c" ]];then
-	sed -i 's/bezier/cspline/g' plotgraph.plt
+	sed -i 's/bezier/cspline/g' $PLOTFILE
 fi
 if [[ $SMOOTH_MODE == "B" || $SMOOTH_MODE == 'b' ]];then
-	sed -i 's/cspline/bezier/g' plotgraph.plt
+	sed -i 's/cspline/bezier/g' $PLOTFILE
 fi
 
+echo "Temp min.:"
+read TEMP_MIN
+echo "Temp max.:"
+read TEMP_MAX
+#if [[ $TEMP_MIN != "" ]]; then
+	sed -i "s/temp_min\=\".*\"/temp_min=\"$TEMP_MIN\"/" $PLOTFILE
+	sed -i "s/temp_max\=\".*\"/temp_max=\"$TEMP_MAX\"/" $PLOTFILE
+#fi
+
+echo "Humidity min.:"
+read HUM_MIN
+echo "Humidity max.:"
+read HUM_MAX
+#if [[ $HUM_MIN != "" ]]; then
+	sed -i "s/hum_min\=\".*\"/hum_min=\"$HUM_MIN\"/" $PLOTFILE
+	sed -i "s/hum_max\=\".*\"/hum_max=\"$HUM_MAX\"/" $PLOTFILE
+#fi
+
+echo "Pressure min.:"
+read PRESS_MIN
+echo "Pressure max.:"
+read PRESS_MAX
+#if [[ $PRESS_MIN != "" ]]; then
+	sed -i "s/press_min\=\".*\"/press_min=\"$PRESS_MIN\"/" $PLOTFILE
+	sed -i "s/press_max\=\".*\"/press_max=\"$PRESS_MAX\"/" $PLOTFILE
+#fi
 echo "Plotting data..."
 
-PLOT_START=$(date +%s -d "$(echo $PLOT_START | cut -d '/' -f 3 | cut -d ' ' -f 1)/$(echo $PLOT_START | cut -d '/' -f 2)/$(echo $PLOT_START | cut -d '/' -f 1) $(echo $PLOT_START | cut -d ' ' -f 2)")
-PLOT_END=$(date +%s -d "$(echo $PLOT_END | cut -d '/' -f 3 | cut -d ' ' -f 1)/$(echo $PLOT_END | cut -d '/' -f 2)/$(echo $PLOT_END | cut -d '/' -f 1) $(echo $PLOT_END | cut -d ' ' -f 2)")
-
-sed -i "s/xrange \[.*\]/xrange \[$PLOT_START:$PLOT_END\]/" plotgraph.plt
-
-gnuplot plotgraph.plt
+gnuplot $PLOTFILE

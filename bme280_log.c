@@ -163,7 +163,12 @@ int main(int argc, char* argv[])
     uint32_t req_delay;
 
     int8_t logfile;
-    
+
+    enum{
+	    YES,
+	    NO
+    }print_headers=YES;
+
     dev.settings.osr_t = BME280_OVERSAMPLING_1X;
 
     /* Make sure to select BME280_I2C_ADDR_PRIM or BME280_I2C_ADDR_SEC as needed */
@@ -207,6 +212,11 @@ int main(int argc, char* argv[])
 			    }
 			    break;
 		    case 'l':
+			    if((logfile = open(optarg, O_RDONLY)) > 0)
+			    {
+				    print_headers = NO;
+				    close(logfile);
+			    }
 			    if((logfile = open(optarg, O_WRONLY | O_APPEND | O_CREAT, 0644)) < 0)
 			    {
 			    	    fprintf(stderr, "Failed to open %s\n", optarg);
@@ -297,6 +307,11 @@ int main(int argc, char* argv[])
     
     if(pid != 0)
 	    printf("Data\t\t\tTemperatura\tUmidita\t\tPressione\tPressione slm\n");
+    else
+    {
+	    if(print_headers == YES)
+	    dprintf(logfile, "Secondi Temperatura Umidita Pressione Pressione-SLM Data\n");
+    }
 
     /* Continuously stream sensor data */
     while (1)
@@ -332,7 +347,7 @@ int main(int argc, char* argv[])
 	if(pid == 0)
 	{
 		dprintf(logfile, "%d %0.2f %0.2f %0.2f %0.2f ", now, result.temp, result.hum, result.press, result.press_sl);
-		dprintf(logfile, "%02d/%02d/%dT%02d:%02d:%02d\n", date->tm_mday, date->tm_mon, date->tm_year+1900, date->tm_hour, date->tm_min, date->tm_sec);
+		dprintf(logfile, "%02d/%02d/%d-%02d:%02d:%02d\n", date->tm_mday, date->tm_mon, date->tm_year+1900, date->tm_hour, date->tm_min, date->tm_sec);
 	}
 	else
 	{
@@ -430,7 +445,7 @@ void print_help(char *progname)
 
 void print_date(struct tm *date)
 {
-	printf("%02d/%02d/%dT%02d:%02d:%02d", date->tm_mday, date->tm_mon, date->tm_year+1900, date->tm_hour, date->tm_min, date->tm_sec);
+	printf("%02d/%02d/%d-%02d:%02d:%02d", date->tm_mday, date->tm_mon, date->tm_year+1900, date->tm_hour, date->tm_min, date->tm_sec);
 }
 
 float sl_press_calc(float press, float temp, float alt)
